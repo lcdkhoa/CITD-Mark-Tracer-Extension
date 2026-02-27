@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        width: 300px;
+        padding: 15px;
+        margin: 0;
+      }
+      h3 {
+        margin-top: 0;
+        color: #2e8b57;
+      }
+      .row {
+        display: flex;
+        gap: 5px;
+        margin-bottom: 15px;
+      }
+      input {
+        flex: 1;
+        padding: 5px;
+      }
+      button {
+        padding: 5px 10px;
+        cursor: pointer;
+        background: #2e8b57;
+        color: white;
+        border: none;
+        border-radius: 3px;
+      }
+      button.danger {
+        background: #dc143c;
+      }
+      ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
+      li {
+        display: flex;
+        justify-content: space-between;
+        padding: 5px 0;
+        border-bottom: 1px solid #eee;
+      }
+      .footer {
+        margin-top: 20px;
+        text-align: center;
+      }
+      .btn-login {
+        width: 100%;
+        background: #0056b3;
+        padding: 10px;
+        font-weight: bold;
+      }
+    </style>
+  </head>
+  <body>
+    <h3>Quản lý môn học</h3>
+
+    <div class="row">
+      <input
+        type="text"
+        id="subjectCode"
+        placeholder="Nhập mã môn (VD: IE104)"
+        autocomplete="off"
+      />
+      <button id="addBtn">Thêm</button>
+    </div>
+
+    <ul id="subjectList"></ul>
+
+    <div class="footer">
+      <button id="loginBtn" class="btn-login">Mở trang Đăng nhập CITD</button>
+    </div>
+
+    <script src="popup.js"></script>
+  </body>
+</html>

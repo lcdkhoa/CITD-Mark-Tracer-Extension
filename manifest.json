@@ -1,10 +1,21 @@
 {
   "manifest_version": 3,
   "name": "CITD Grade Checker",
-  "version": "1.1",
-  "permissions": ["notifications", "storage", "alarms", "offscreen"],
-  "host_permissions": ["https://student.citd.edu.vn/*"],
+  "version": "1.2",
+  "permissions": [
+    "notifications",
+    "storage",
+    "alarms",
+    "offscreen"
+  ],
+  "host_permissions": [
+    "https://student.citd.edu.vn/*"
+  ],
   "background": {
     "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "CITD Grade Checker"
   }
 }
