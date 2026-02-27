@@ -74,6 +74,30 @@
     <div class="footer">
       <button id="loginBtn" class="btn-login">Mở trang Đăng nhập CITD</button>
     </div>
+    <hr style="margin: 15px 0; border: 0; border-top: 1px solid #ccc" />
+    <h4 style="margin: 0 0 10px 0; color: #444">Auto-Login Config</h4>
+    <div style="display: flex; flex-direction: column; gap: 5px">
+      <input
+        type="text"
+        id="usernameInput"
+        placeholder="Mã SV (VD: 24210219@...)"
+        autocomplete="off"
+      />
+      <input
+        type="password"
+        id="passwordInput"
+        placeholder="Mật khẩu"
+        autocomplete="off"
+      />
+      <button id="saveAuthBtn" style="background: #007bff">
+        Lưu tài khoản
+      </button>
+      <small
+        id="authStatus"
+        style="color: green; font-size: 11px; display: none"
+        >Đã lưu thành công!</small
+      >
+    </div>
 
     <script src="popup.js"></script>
   </body>
