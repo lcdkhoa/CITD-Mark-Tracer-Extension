@@ -3,101 +3,315 @@
   <head>
     <meta charset="UTF-8" />
     <style>
+      * {
+        box-sizing: border-box;
+      }
       body {
-        font-family: Arial, sans-serif;
-        width: 300px;
-        padding: 15px;
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
+          Arial, sans-serif;
+        width: 340px;
+        padding: 16px;
         margin: 0;
+        background: #f8fafc;
+        color: #334155;
       }
       h3 {
-        margin-top: 0;
-        color: #2e8b57;
-      }
-      .row {
+        margin: 0 0 16px 0;
+        color: #0f172a;
+        font-size: 16px;
+        font-weight: 600;
         display: flex;
-        gap: 5px;
-        margin-bottom: 15px;
+        align-items: center;
+        justify-content: space-between;
       }
-      input {
+
+      /* Input & Button */
+      .row-add {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 16px;
+      }
+      input[type="text"],
+      input[type="password"] {
         flex: 1;
-        padding: 5px;
+        padding: 8px 12px;
+        border: 1px solid #cbd5e1;
+        border-radius: 6px;
+        font-size: 13px;
+        outline: none;
+        transition: border 0.2s;
+      }
+      input[type="text"]:focus,
+      input[type="password"]:focus {
+        border-color: #16a34a;
       }
       button {
-        padding: 5px 10px;
+        padding: 8px 12px;
         cursor: pointer;
-        background: #2e8b57;
-        color: white;
         border: none;
-        border-radius: 3px;
+        border-radius: 6px;
+        font-size: 13px;
+        font-weight: 500;
+        transition: all 0.2s;
       }
-      button.danger {
-        background: #dc143c;
+      .btn-primary {
+        background: #16a34a;
+        color: white;
       }
+      .btn-primary:hover {
+        background: #15803d;
+      }
+
+      /* Subject List */
       ul {
         list-style: none;
         padding: 0;
         margin: 0;
+        max-height: 250px;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
       }
       li {
+        background: white;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 10px 12px;
         display: flex;
         justify-content: space-between;
-        padding: 5px 0;
-        border-bottom: 1px solid #eee;
+        align-items: center;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
       }
-      .footer {
+      .sub-info {
+        display: flex;
+        flex-direction: column;
+        max-width: 60%;
+      }
+      .sub-code {
+        font-weight: 600;
+        color: #0f172a;
+        font-size: 14px;
+      }
+      .sub-name {
+        font-size: 11px;
+        color: #64748b;
+        margin-top: 2px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      /* Right actions: Score + Delete */
+      .sub-actions {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .score-badge {
+        font-size: 12px;
+        font-weight: 600;
+        padding: 4px 8px;
+        border-radius: 12px;
+      }
+      .score-badge.pending {
+        background: #f1f5f9;
+        color: #94a3b8;
+        font-weight: 400;
+        font-size: 11px;
+      }
+      .score-badge.graded {
+        background: #dcfce7;
+        color: #16a34a;
+        border: 1px solid #bbf7d0;
+      }
+      .btn-delete {
+        background: transparent;
+        color: #ef4444;
+        padding: 4px;
+        border-radius: 4px;
+      }
+      .btn-delete:hover {
+        background: #fee2e2;
+      }
+
+      /* Setting Section (Segmented Control) */
+      .setting-section {
         margin-top: 20px;
-        text-align: center;
+        padding-top: 16px;
+        border-top: 1px solid #e2e8f0;
       }
-      .btn-login {
-        width: 100%;
-        background: #0056b3;
-        padding: 10px;
-        font-weight: bold;
+      .setting-title {
+        font-size: 13px;
+        font-weight: 600;
+        color: #475569;
+        margin-bottom: 10px;
+      }
+      .interval-selector {
+        display: flex;
+        background: #e2e8f0;
+        border-radius: 6px;
+        padding: 4px;
+        gap: 2px;
+      }
+      .interval-selector input[type="radio"] {
+        display: none;
+      }
+      .interval-selector label {
+        flex: 1;
+        text-align: center;
+        padding: 6px 0;
+        font-size: 12px;
+        font-weight: 500;
+        color: #64748b;
+        cursor: pointer;
+        border-radius: 4px;
+        transition: all 0.2s ease;
+      }
+      .interval-selector label:hover {
+        color: #334155;
+      }
+      .interval-selector input[type="radio"]:checked + label {
+        background: #ffffff;
+        color: #0f172a;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        font-weight: 600;
+      }
+
+      /* Auth Section */
+      #loginForm {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        margin-top: 8px;
+      }
+      #loggedInState {
+        display: none;
+        background: white;
+        border: 1px solid #e2e8f0;
+        padding: 10px 12px;
+        border-radius: 8px;
+        align-items: center;
+        justify-content: space-between;
+        margin-top: 8px;
+      }
+      .user-info {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .status-dot {
+        width: 8px;
+        height: 8px;
+        background: #16a34a;
+        border-radius: 50%;
+        box-shadow: 0 0 0 2px #dcfce7;
+      }
+      .user-email {
+        font-size: 12px;
+        font-weight: 500;
+        color: #0f172a;
+        max-width: 150px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .btn-logout {
+        background: white;
+        border: 1px solid #cbd5e1;
+        color: #475569;
+        padding: 4px 8px;
+        font-size: 11px;
+      }
+      .btn-logout:hover {
+        background: #f8fafc;
+        border-color: #94a3b8;
+      }
+
+      /* Web Link */
+      .footer-link {
+        display: block;
+        text-align: center;
+        margin-top: 16px;
+        font-size: 12px;
+        color: #2563eb;
+        text-decoration: none;
+        font-weight: 500;
+      }
+      .footer-link:hover {
+        text-decoration: underline;
       }
     </style>
   </head>
   <body>
-    <h3>Quản lý môn học</h3>
+    <h3>CITD Grade Tracker</h3>
 
-    <div class="row">
+    <div class="row-add">
       <input
         type="text"
         id="subjectCode"
-        placeholder="Nhập mã môn (VD: IE104)"
+        placeholder="Mã môn (VD: IE104)"
         autocomplete="off"
       />
-      <button id="addBtn">Thêm</button>
+      <button id="addBtn" class="btn-primary">Thêm</button>
     </div>
 
     <ul id="subjectList"></ul>
 
-    <div class="footer">
-      <button id="loginBtn" class="btn-login">Mở trang Đăng nhập CITD</button>
+    <div class="setting-section">
+      <div class="setting-title">Chu kỳ tự động quét</div>
+      <div class="interval-selector">
+        <input type="radio" id="int-1" name="interval" value="1" />
+        <label for="int-1">1 phút</label>
+
+        <input type="radio" id="int-5" name="interval" value="5" />
+        <label for="int-5">5 phút</label>
+
+        <input type="radio" id="int-15" name="interval" value="15" />
+        <label for="int-15">15 phút</label>
+
+        <input type="radio" id="int-30" name="interval" value="30" />
+        <label for="int-30">30 phút</label>
+
+        <input type="radio" id="int-60" name="interval" value="60" />
+        <label for="int-60">1 giờ</label>
+      </div>
     </div>
-    <hr style="margin: 15px 0; border: 0; border-top: 1px solid #ccc" />
-    <h4 style="margin: 0 0 10px 0; color: #444">Auto-Login Config</h4>
-    <div style="display: flex; flex-direction: column; gap: 5px">
-      <input
-        type="text"
-        id="usernameInput"
-        placeholder="Mã SV (VD: 24210219@...)"
-        autocomplete="off"
-      />
-      <input
-        type="password"
-        id="passwordInput"
-        placeholder="Mật khẩu"
-        autocomplete="off"
-      />
-      <button id="saveAuthBtn" style="background: #007bff">
-        Lưu tài khoản
-      </button>
-      <small
-        id="authStatus"
-        style="color: green; font-size: 11px; display: none"
-        >Đã lưu thành công!</small
-      >
+
+    <div
+      class="setting-section"
+      style="border-top: none; padding-top: 4px; margin-top: 10px"
+    >
+      <div class="setting-title">Kết nối tự động đăng nhập</div>
+
+      <div id="loginForm">
+        <input
+          type="text"
+          id="usernameInput"
+          placeholder="Email (VD: 24210219@ms...)"
+          autocomplete="off"
+        />
+        <input
+          type="password"
+          id="passwordInput"
+          placeholder="Mật khẩu"
+          autocomplete="off"
+        />
+        <button id="saveAuthBtn" class="btn-primary" style="width: 100%">
+          Lưu tài khoản
+        </button>
+      </div>
+
+      <div id="loggedInState">
+        <div class="user-info">
+          <div class="status-dot"></div>
+          <span class="user-email" id="displayEmail">email@uit.edu.vn</span>
+        </div>
+        <button id="logoutBtn" class="btn-logout">Đăng xuất</button>
+      </div>
     </div>
+
+    <a href="#" id="webLink" class="footer-link">Mở bảng điểm CITD &rarr;</a>
 
     <script src="popup.js"></script>
   </body>

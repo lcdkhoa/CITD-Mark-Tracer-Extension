@@ -2,34 +2,126 @@ document.addEventListener("DOMContentLoaded", async () => {
   const inputEl = document.getElementById("subjectCode");
   const addBtn = document.getElementById("addBtn");
   const listEl = document.getElementById("subjectList");
-  const loginBtn = document.getElementById("loginBtn");
 
-  // Load danh sách môn học từ Storage
+  const loginForm = document.getElementById("loginForm");
+  const loggedInState = document.getElementById("loggedInState");
+  const userEl = document.getElementById("usernameInput");
+  const passEl = document.getElementById("passwordInput");
+  const saveAuthBtn = document.getElementById("saveAuthBtn");
+  const displayEmail = document.getElementById("displayEmail");
+  const logoutBtn = document.getElementById("logoutBtn");
+  const webLink = document.getElementById("webLink");
+
+  // Xóa Badge vì user đã xem
+  chrome.action.setBadgeText({ text: "" });
+  await chrome.storage.local.set({ unreadCount: 0 });
+
+  // SET UP INTERVAL SELECTOR
+  const intervalRadios = document.querySelectorAll('input[name="interval"]');
+  const { checkInterval = 1 } = await chrome.storage.local.get("checkInterval"); // Mặc định 1 phút
+  const radioToCheck =
+    document.getElementById(`int-${checkInterval}`) ||
+    document.getElementById("int-1");
+  radioToCheck.checked = true;
+
+  // Lắng nghe sự thay đổi thời gian quét
+  intervalRadios.forEach((radio) => {
+    radio.addEventListener("change", async (e) => {
+      const newInterval = parseInt(e.target.value, 10);
+      await chrome.storage.local.set({ checkInterval: newInterval });
+      // Background.js sẽ tự động bắt sự kiện storage change để cài lại Alarm!
+    });
+  });
+
   async function renderList() {
     listEl.innerHTML = "";
     const { targetSubjects = [] } =
       await chrome.storage.local.get("targetSubjects");
 
     if (targetSubjects.length === 0) {
-      listEl.innerHTML = "<li><i>Chưa theo dõi môn nào</i></li>";
+      listEl.innerHTML =
+        '<li style="justify-content: center; color: #94a3b8; font-size: 13px;">Chưa theo dõi môn nào</li>';
       return;
     }
 
+    const storageKeys = targetSubjects
+      .map((code) => `${code}_name`)
+      .concat(targetSubjects);
+    const storageData = await chrome.storage.local.get(storageKeys);
+
     targetSubjects.forEach((code) => {
       const li = document.createElement("li");
-      li.textContent = code;
+
+      const subjectName = storageData[`${code}_name`] || "Đang đồng bộ...";
+      const score = storageData[code];
+
+      const infoDiv = document.createElement("div");
+      infoDiv.className = "sub-info";
+      infoDiv.innerHTML = `
+        <span class="sub-code">${code}</span>
+        <span class="sub-name" title="${subjectName}">${subjectName}</span>
+      `;
+
+      const actionDiv = document.createElement("div");
+      actionDiv.className = "sub-actions";
+
+      const scoreBadge = document.createElement("span");
+      if (score && score !== "-" && score !== "") {
+        scoreBadge.className = "score-badge graded";
+        scoreBadge.textContent = score;
+      } else {
+        scoreBadge.className = "score-badge pending";
+        scoreBadge.textContent = "Chờ";
+      }
 
       const removeBtn = document.createElement("button");
-      removeBtn.textContent = "Xóa";
-      removeBtn.className = "danger";
+      removeBtn.innerHTML = "✕";
+      removeBtn.className = "btn-delete";
+      removeBtn.title = "Xóa môn này";
       removeBtn.onclick = () => removeSubject(code);
 
-      li.appendChild(removeBtn);
+      actionDiv.appendChild(scoreBadge);
+      actionDiv.appendChild(removeBtn);
+
+      li.appendChild(infoDiv);
+      li.appendChild(actionDiv);
       listEl.appendChild(li);
     });
   }
 
-  // Thêm môn
+  async function checkAuthState() {
+    const { citd_username } = await chrome.storage.local.get(["citd_username"]);
+    if (citd_username) {
+      loginForm.style.display = "none";
+      loggedInState.style.display = "flex";
+      displayEmail.textContent = citd_username;
+      displayEmail.title = citd_username;
+    } else {
+      loginForm.style.display = "flex";
+      loggedInState.style.display = "none";
+      userEl.value = "";
+      passEl.value = "";
+    }
+  }
+
+  saveAuthBtn.addEventListener("click", async () => {
+    const user = userEl.value.trim();
+    const pass = passEl.value.trim();
+    if (user && pass) {
+      await chrome.storage.local.set({
+        citd_username: user,
+        citd_password: pass,
+      });
+      checkAuthState();
+      chrome.alarms.create("checkGrades_immediate", { when: Date.now() });
+    }
+  });
+
+  logoutBtn.addEventListener("click", async () => {
+    await chrome.storage.local.remove(["citd_username", "citd_password"]);
+    checkAuthState();
+  });
+
   addBtn.addEventListener("click", async () => {
     const code = inputEl.value.trim().toUpperCase();
     if (!code) return;
@@ -40,59 +132,30 @@ document.addEventListener("DOMContentLoaded", async () => {
       targetSubjects.push(code);
       await chrome.storage.local.set({ targetSubjects });
       inputEl.value = "";
+      chrome.alarms.create("checkGrades_immediate", { when: Date.now() });
       renderList();
     }
   });
 
-  // Xóa môn
+  inputEl.addEventListener("keypress", (e) => {
+    if (e.key === "Enter") addBtn.click();
+  });
+
   async function removeSubject(codeToRemove) {
     let { targetSubjects = [] } =
       await chrome.storage.local.get("targetSubjects");
     targetSubjects = targetSubjects.filter((code) => code !== codeToRemove);
     await chrome.storage.local.set({ targetSubjects });
 
-    // Xóa luôn lịch sử điểm của môn này trong cache
-    await chrome.storage.local.remove(codeToRemove);
+    await chrome.storage.local.remove([codeToRemove, `${codeToRemove}_name`]);
     renderList();
   }
 
-  // Mở trang login
-  loginBtn.addEventListener("click", () => {
-    chrome.tabs.create({ url: "https://student.citd.edu.vn/signin" });
+  webLink.addEventListener("click", (e) => {
+    e.preventDefault();
+    chrome.tabs.create({ url: "https://student.citd.edu.vn/points" });
   });
 
+  checkAuthState();
   renderList();
-
-  // Lấy các element mới
-  const userEl = document.getElementById("usernameInput");
-  const passEl = document.getElementById("passwordInput");
-  const saveAuthBtn = document.getElementById("saveAuthBtn");
-  const authStatus = document.getElementById("authStatus");
-
-  // Load thông tin cũ nếu có (chỉ hiển thị username, không show pass ra input)
-  chrome.storage.local.get(["citd_username", "citd_password"], (data) => {
-    if (data.citd_username) userEl.value = data.citd_username;
-    if (data.citd_password) passEl.value = "********"; // Fake password mask cho UX
-  });
-
-  // Lưu tài khoản
-  saveAuthBtn.addEventListener("click", async () => {
-    const user = userEl.value.trim();
-    const pass = passEl.value.trim();
-
-    // Nếu người dùng không nhập gì mới mà bấm lưu (đang ở trạng thái mask) thì bỏ qua
-    if (pass === "********") return;
-
-    if (user && pass) {
-      await chrome.storage.local.set({
-        citd_username: user,
-        citd_password: pass,
-      });
-      authStatus.style.display = "block";
-      setTimeout(() => (authStatus.style.display = "none"), 2000);
-
-      // Chạy thử logic checkGrades ngay lập tức để test login
-      chrome.alarms.create("checkGrades_immediate", { when: Date.now() });
-    }
-  });
 });

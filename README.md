@@ -1,47 +1,48 @@
 # CITD Grade Checker (CITD Mark Tracer Extension)
 
-Công cụ tự động kiểm tra và thông báo điểm số cho sinh viên CITD (Trung tâm Phát triển Công nghệ Thông tin - ĐHQG-HCM).
+Công cụ tự đồng bộ và thông báo điểm số cho sinh viên CITD (Trung tâm Phát triển Công nghệ Thông tin - ĐHQG-HCM).
 
 ## 🚀 Giới thiệu
-**CITD Grade Checker** là một Chrome Extension giúp sinh viên tự động theo dõi điểm số trên hệ thống [student.citd.edu.vn](https://student.citd.edu.vn). Bạn không cần phải F5 trang web liên tục, extension sẽ làm việc đó thay bạn và gửi thông báo ngay lập tức khi có điểm mới.
+**CITD Grade Checker** là một Chrome Extension giúp sinh viên tự động theo dõi điểm số trên hệ thống [student.citd.edu.vn](https://student.citd.edu.vn). Với các tính năng tự động hóa mạnh mẽ, bạn sẽ không bao giờ bỏ lỡ bất kỳ cột điểm nào.
+
+![Giao diện CITD Grade Checker](assets/screenshot_v1.5.png)
+
+## 🌟 Tính năng nổi bật (v1.5)
+- ✅ **Giao diện Popup hiện đại**: Quản lý danh sách môn học và tài khoản ngay trên thanh công cụ.
+- ✅ **Chu kỳ tự động quét (Interval Selector)**: Tùy chỉnh thời gian kiểm tra điểm linh hoạt (1 phút, 5 phút, 15 phút, 30 phút, hoặc 1 giờ).
+- ✅ **Auto-Login (Tự động đăng nhập)**: Tự động xử lý khi session hết hạn bằng thông tin tài khoản đã lưu.
+- ✅ **Badge Count**: Hiển thị số lượng môn học có điểm mới trực tiếp trên icon extension.
+- ✅ **Thông báo đẩy**: Gửi thông báo Windows/macOS ngay khi phát hiện thay đổi điểm số.
+- ✅ **Cấu hình động**: Thêm/Xóa môn học cần theo dõi trực tiếp từ giao diện.
 
 ## 🛠 Công nghệ sử dụng (Tech Stack)
-Dự án được xây dựng dựa trên các công nghệ hiện đại nhất của Chrome Extension:
-- **Manifest V3**: Tiêu chuẩn mới nhất cho Chrome Extension, đảm bảo an toàn và hiệu năng.
-- **Service Worker (`background.js`)**: Chạy ngầm để quản lý lịch trình kiểm tra điểm bằng `chrome.alarms`.
-- **Offscreen Documents**: Sử dụng để phân giải HTML (DOM Parsing) một cách an toàn trong môi trường Service Worker.
-- **Chrome Storage API**: Lưu trữ điểm số cũ để so sánh và phát hiện thay đổi.
-- **Chrome Notifications API**: Gửi thông báo đẩy trực tiếp trên màn hình máy tính.
-
-## 📋 Tính năng chính
-- ✅ **Tự động kiểm tra**: Kiểm tra điểm định kỳ (mặc định mỗi phút một lần).
-- ✅ **Thông báo tức thì**: Bắn thông báo Windows/macOS khi phát hiện thay đổi điểm số của các môn học mục tiêu.
-- ✅ **Lưu vết debug**: Lưu lại lịch sử kiểm tra (logs) trong bộ nhớ local để theo dõi trạng thái hoạt động.
-- ✅ **Tiết kiệm tài nguyên**: Hoạt động hiệu quả, không làm chậm trình duyệt.
+- **Manifest V3**: Tiêu chuẩn Chrome Extension hiện đại.
+- **Service Worker (`background.js`)**: Chạy ngầm xử lý logic chính, Auto-Login và quản lý Alarms.
+- **Offscreen Documents**: Phân giải HTML (DOM Parsing) an toàn.
+- **Chrome Storage API**: Lưu trữ thông tin đăng nhập, danh sách môn học và chu kỳ quét.
+- **Chrome Alarms & Notifications API**: Quản lý lịch trình kiểm tra và thông báo người dùng.
 
 ## 📖 Hướng dẫn sử dụng
 
-### 1. Cài đặt (Dành cho Nhà phát triển)
-Hiện tại extension đang trong giai đoạn phát triển, bạn có thể cài đặt theo các bước sau:
-1. Tải toàn bộ mã nguồn về máy tính.
-2. Mở trình duyệt Chrome, truy cập địa chỉ `chrome://extensions/`.
-3. Bật **Developer mode** (Chế độ dành cho nhà phát triển) ở góc trên bên phải.
-4. Nhấn nút **Load unpacked** (Tải tiện ích đã giải nén) và chọn thư mục chứa mã nguồn này.
+### 1. Cài đặt
+1. Tải mã nguồn dự án về máy.
+2. Truy cập `chrome://extensions/`, bật **Developer mode**.
+3. Chọn **Load unpacked** và trỏ đến thư mục dự án.
 
-### 2. Cấu hình môn học mục tiêu
-Mở file `background.js`, tìm biến `TARGET_SUBJECTS` để thêm các mã môn học bạn muốn theo dõi:
-```javascript
-const TARGET_SUBJECTS = ["IE104", "IE303", "IE106", "IE103", "MA004"];
-```
+### 2. Thiết lập tài khoản & Chu kỳ quét
+- **Tài khoản**: Nhập Email và Mật khẩu sinh viên tại phần "Kết nối tự động đăng nhập" và nhấn **Lưu tài khoản**.
+- **Chu kỳ quét**: Chọn thời gian bạn muốn extension tự động kiểm tra điểm (mặc định là 1 phút). Extension sẽ tự động cập nhật lịch trình ngay khi bạn thay đổi.
 
-### 3. Cách hoạt động
-- Sau khi cài đặt, extension sẽ tự động đăng ký một lịch trình (`alarm`) kiểm tra điểm.
-- Bạn cần đảm bảo đã **đăng nhập** vào hệ thống [student.citd.edu.vn](https://student.citd.edu.vn) trên trình duyệt để extension có quyền lấy dữ liệu.
-- Khi phát hiện mã môn học trong danh sách `TARGET_SUBJECTS` có điểm (khác "-" hoặc rỗng) và điểm này khác với lần kiểm tra trước, một thông báo sẽ xuất hiện.
+### 3. Theo dõi môn học
+- Nhập mã môn học (VD: `IE104`, `MA004`) vào ô "Mã môn" và nhấn **Thêm**.
+- Trạng thái điểm số sẽ được đồng bộ và hiển thị trực quan:
+  - **Chờ**: Đang đợi hệ thống cập nhật hoặc đang đồng bộ.
+  - **Số điểm**: Hiển thị điểm số hiện tại khi phát hiện thành công.
 
 ## ⚠️ Lưu ý quan trọng
-- **Session**: Nếu bạn đăng xuất hoặc session hết hạn, extension sẽ không thể kiểm tra điểm. Hãy đảm bảo session của bạn luôn còn hiệu lực.
-- **Rate Limit**: Mặc định extension kiểm tra mỗi 1 phút để test. Khi sử dụng thực tế, nên điều chỉnh `periodInMinutes` trong `background.js` lên 15-30 phút để tránh bị máy chủ CITD chặn truy cập.
+- **Bảo mật**: Thông tin tài khoản được lưu cục bộ trong trình duyệt của bạn (Chrome Storage), đảm bảo an toàn tuyệt đối.
+- **Thông báo**: Để nhận thông báo đẩy, hãy đảm bảo bạn đã cấp quyền thông báo cho Chrome trên hệ điều hành.
+- **Đồng bộ**: Khi bạn thay đổi chu kỳ quét, extension sẽ hủy lịch trình hiện tại và thiết lập lịch mới ngay lập tức.
 
 ---
-*Phát triển bởi [lcdkhoa](https://github.com/lcdkhoa)*
+*Phát triển bởi [lcdkhoa](https://github.com/lcdkhoa) with ❤️ (AI powered)*
